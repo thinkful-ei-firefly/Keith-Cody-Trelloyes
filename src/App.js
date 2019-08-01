@@ -15,9 +15,8 @@ class App extends Component {
     allCards: this.props.store.allCards
   };
 
-  deleteButton = id =>{ //id should be a letter
-    console.log(id);
-    const cards = this.state.allCards;
+  deleteButton = id => { //id should be a letter
+    const cards = {...this.state.allCards};
     delete cards[id];
     const newLists = this.state.lists.map(list => {
       const newCards = list.cardIds.filter(cardId => cardId !== id)
@@ -28,17 +27,38 @@ class App extends Component {
       }
     });
     this.setState({
-      lists: newLists,
-      allCards: cards
+      allCards: cards,
+      lists: newLists
     });
   }
 
-  newCardButton(){
+  newRandomCard = () => {
+    const id = Math.random().toString(36).substring(2, 4)
+      + Math.random().toString(36).substring(2, 4);
+    return {
+      id,
+      title: `Random Card ${id}`,
+      content: 'lorem ipsum',
+    }
+  }
 
+  addNewCard = id => {
+    const newCard = this.newRandomCard();
+
+    const newList = this.state.lists.map(list => {
+      if(list.id === id){
+        list.cardIds.push(newCard.id);
+      }
+      return list;
+    })
+
+    this.setState({
+      allCards: {...this.state.allCards, [newCard.id]:newCard},
+      lists: newList
+    });
   }
 
   render() {
-    console.log(this.state);
     return (
       <main className='App'>
         <header className='App-header'>
@@ -50,7 +70,9 @@ class App extends Component {
               key={list.id}
               header={list.header}
               cards={list.cardIds.map(id => this.state.allCards[id])}
-              deleteButton = {this.deleteButton}
+              deleteButton={this.deleteButton}
+              addNewCard={this.addNewCard}
+              id={list.id} // is there a way to get the 'Key' as a prop
             />
           ))}
         </div>
